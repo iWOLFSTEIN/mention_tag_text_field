@@ -1,6 +1,15 @@
 extension StringExtensions on String {
+  /// Get the first character in the string
+  String get first {
+    if (isNotEmpty) {
+      return substring(0, 1);
+    } else {
+      return '';
+    }
+  }
+
   /// Get the last character in the string
-  String get lastCharacter {
+  String get last {
     if (isNotEmpty) {
       return substring(length - 1);
     } else {

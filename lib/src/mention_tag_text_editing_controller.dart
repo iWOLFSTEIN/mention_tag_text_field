@@ -7,130 +7,87 @@ import 'package:mention_tag_text_field/src/string_extensions.dart';
 class MentionTagTextEditingController extends TextEditingController {
   List<MentionTagData> mentions = [];
   late MentionTagDecoration mentionTagDecoration;
-  List<int> _mentionedTextRange = [];
-  void Function(bool)? onMentionStateChanged;
   void Function(String?)? onMention;
-  bool _isMentioned = false;
-  bool _mentionHasStarted = false;
   String _temp = '';
-  int _mentionStartIndex = -1;
 
   void addMention(MentionTagData mentionData) {
     String mentionSymbol = _replaceLastSubstring(mentionData.mention);
     mentionData.mention = "$mentionSymbol${mentionData.mention}";
+
     mentions.add(mentionData);
-    _reset();
   }
 
   String _replaceLastSubstring(String replacement) {
-    if (_mentionedTextRange.length == 1) {
+    if (text.length == 1) {
       text = text + replacement + mentionTagDecoration.mentionBreak;
-      _temp = text;
-      return text[_mentionedTextRange.first];
+      return text[0];
     }
 
-    text = text.replaceRange(
-            _mentionedTextRange.first, _mentionedTextRange.last, replacement) +
-        mentionTagDecoration.mentionBreak;
-    _temp = text;
-    return text[_mentionedTextRange.first - 1];
+    final indexCursor = selection.base.offset;
+    var indexMentionStart = _getIndexMentionStart(indexCursor, text);
+    indexMentionStart = indexCursor - indexMentionStart;
+
+    text = text.replaceRange(indexMentionStart, indexCursor,
+        "$replacement${mentionTagDecoration.mentionBreak}");
+
+    return text[indexMentionStart - 1];
+  }
+
+  int _getIndexMentionStart(int indexCursor, String value) {
+    final mentionStartPattern =
+        RegExp(mentionTagDecoration.mentionStart.join('|'));
+    var indexMentionStart = value
+        .substring(0, indexCursor)
+        .split('')
+        .reversed
+        .join()
+        .indexOf(mentionStartPattern);
+    return indexMentionStart;
+  }
+
+  String? _getMention(String value) {
+    final indexCursor = selection.base.offset;
+
+    var indexMentionEnd = value
+        .substring(0, indexCursor)
+        .split('')
+        .reversed
+        .join()
+        .indexOf(mentionTagDecoration.mentionEnd);
+
+    var indexMentionStart = _getIndexMentionStart(indexCursor, value);
+
+    if (indexMentionEnd != -1 && indexMentionEnd < indexMentionStart) {
+      return null;
+    }
+
+    print("MentionStart: $indexMentionStart Cursor: $indexCursor");
+
+    if (indexMentionStart != -1) {
+      if (value.length == 1) return value.first;
+
+      indexMentionStart = indexCursor - indexMentionStart;
+
+      print("MentionStart: $indexMentionStart Cursor: $indexCursor");
+      if (indexMentionStart != -1 &&
+          indexMentionStart >= 0 &&
+          indexMentionStart <= indexCursor) {
+        return value.substring(indexMentionStart - 1, indexCursor);
+      }
+    }
+    return null;
   }
 
   void onChanged(String value) async {
-    _isMentioned = false;
-    for (final mentionStart in mentionTagDecoration.mentionStart) {
-      if (value.lastCharacter == mentionStart) {
-        _isMentioned = true;
-        break;
-      }
-    }
-
-    if (mentionTagDecoration.isSingleWordMention) {
-      if (value.lastCharacter == ' ') {
-        if (onMentionStateChanged != null) {
-          _reset();
-        }
-      }
-    }
+    if (onMention == null) return;
+    String? mention = _getMention(value);
+    onMention!(mention);
 
     if (value.length < _temp.length) {
-      _mentionStartIndex = _findPreviousMentionIndex(value, _temp);
       _updateAllMentions(value);
-
-      for (final mentionStart in mentionTagDecoration.mentionStart) {
-        if (_temp.lastCharacter == mentionStart) {
-          if (onMentionStateChanged != null) {
-            _reset();
-          }
-          break;
-        }
-      }
     }
 
     _temp = value;
-
-    if (_mentionHasStarted) {
-      final mentionedText = _extractSubstring(value, _mentionStartIndex + 1);
-      if (onMention != null) {
-        onMention!(mentionedText);
-      }
-      _mentionedTextRange = _findSubstringIndices(value, mentionedText);
-    } else {
-      if (onMention != null) {
-        onMention!(null);
-      }
-    }
-
-    if (!_isMentioned) return;
-
-    if (onMentionStateChanged != null) {
-      onMentionStateChanged!(true);
-    }
-
-    _mentionHasStarted = true;
-    _mentionStartIndex = value.length - 1;
-    _mentionedTextRange = [_mentionStartIndex];
-  }
-
-  String _extractSubstring(String text, int startIndex) {
-    int endIndex = text.indexOf(' ', startIndex);
-    if (endIndex == -1) {
-      return text.substring(startIndex);
-    } else {
-      return text.substring(startIndex, endIndex);
-    }
-  }
-
-  int _findPreviousMentionIndex(String str1, String str2) {
-    int minLength = str1.length < str2.length ? str1.length : str2.length;
-
-    for (int i = 0; i < minLength; i++) {
-      if (str1[i] != str2[i]) {
-        for (int j = i - 1; j >= 0; j--) {
-          for (final mentionStart in mentionTagDecoration.mentionStart) {
-            if (str2[j] == mentionStart) {
-              return j;
-            }
-          }
-        }
-        break;
-      }
-    }
-
-    for (int j = str2.length - 1; j >= 0; j--) {
-      for (final mentionStart in mentionTagDecoration.mentionStart) {
-        if (str2[j] == mentionStart) {
-          return j;
-        }
-      }
-    }
-
-    return -1;
-  }
-
-  void _reset() {
-    _mentionHasStarted = false;
-    onMentionStateChanged!(false);
   }
 
   void _updateAllMentions(String text) {
@@ -139,8 +96,6 @@ class MentionTagTextEditingController extends TextEditingController {
 
     for (final mention in mentionsCopy) {
       if (!allMentions.contains(mention.mention)) {
-        onMentionStateChanged!(true);
-        _mentionHasStarted = true;
         mentions.removeWhere(
             (mentionData) => mentionData.mention == mention.mention);
       }
@@ -159,12 +114,6 @@ class MentionTagTextEditingController extends TextEditingController {
       }
     }
     return mentions;
-  }
-
-  List<int> _findSubstringIndices(String mainString, String subString) {
-    int startIndex = mainString.indexOf(subString);
-    int endIndex = startIndex + subString.length;
-    return [startIndex, endIndex];
   }
 
   @override

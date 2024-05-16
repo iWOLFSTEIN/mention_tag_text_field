@@ -38,8 +38,8 @@ class _MentionTagTextFieldExampleState
   final MentionTagTextEditingController _controller =
       MentionTagTextEditingController();
 
-  String mentionValue = '';
-  bool isMentionStarted = false;
+  String? mentionValue;
+  // bool isMentionStarted = false;
   late List<String> usernames = [
     for (int i = 0; i < 10; i++) generateRandomUserName()
   ];
@@ -55,7 +55,8 @@ class _MentionTagTextFieldExampleState
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              if (isMentionStarted)
+              // if (isMentionStarted)
+              if (mentionValue != null)
                 suggestions()
               else
                 const Expanded(child: SizedBox()),
@@ -98,14 +99,14 @@ class _MentionTagTextFieldExampleState
     return MentionTagTextField(
       controller: _controller,
       onMention: (value) {
-        if (value == null) return;
+        // if (value == null) return;
         mentionValue = value;
         setState(() {});
       },
-      onMentionStateChanged: (state) {
-        isMentionStarted = state;
-        setState(() {});
-      },
+      // onMentionStateChanged: (state) {
+      //   isMentionStarted = state;
+      //   setState(() {});
+      // },
       mentionTagDecoration: const MentionTagDecoration(
           mentionBreak: ' ',
           mentionStart: ['@', '#'],
@@ -134,7 +135,8 @@ class _MentionTagTextFieldExampleState
                 onTap: () {
                   _controller
                       .addMention(MentionTagData(mention: usernames[index]));
-                  isMentionStarted = false;
+                  // isMentionStarted = false;
+                  mentionValue = null;
                   setState(() {});
                 },
                 child: Padding(

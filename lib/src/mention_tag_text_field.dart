@@ -11,7 +11,6 @@ class MentionTagTextField extends TextField {
     super.key,
     MentionTagTextEditingController? controller,
     this.onMention,
-    this.onMentionStateChanged,
     this.mentionTagDecoration = const MentionTagDecoration(),
     super.focusNode,
     super.undoController,
@@ -98,9 +97,6 @@ class MentionTagTextField extends TextField {
   /// (e.g., "@"), and ends when a space character is encountered.
   final void Function(String?)? onMention;
 
-  /// Returns true when mention or tag has started and false when mention or tag is ended
-  final Function(bool)? onMentionStateChanged;
-
   /// Indicates the decoration related to mentions or tags
   final MentionTagDecoration mentionTagDecoration;
 
@@ -115,7 +111,6 @@ class MentionTagTextField extends TextField {
       MentionTagTextEditingController? mentionController) {
     if (mentionController == null) return;
     mentionController.mentionTagDecoration = mentionTagDecoration;
-    mentionController.onMentionStateChanged = onMentionStateChanged;
     mentionController.onMention = onMention;
   }
 }
