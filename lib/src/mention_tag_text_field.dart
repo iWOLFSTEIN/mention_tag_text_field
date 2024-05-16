@@ -120,3 +120,122 @@ class MentionTagTextField extends TextField {
     mentionController.onMention = onMention;
   }
 }
+
+class MentionTagTextFormField extends TextFormField {
+  MentionTagTextFormField({
+    super.key,
+    TextEditingController? controller,
+    this.onMention,
+    this.mentionTagDecoration = const MentionTagDecoration(),
+    super.initialValue,
+    super.focusNode,
+    super.decoration = const InputDecoration(),
+    super.keyboardType,
+    super.textCapitalization = TextCapitalization.none,
+    super.textInputAction,
+    super.style,
+    super.strutStyle,
+    super.textDirection,
+    super.textAlign = TextAlign.start,
+    super.textAlignVertical,
+    super.autofocus = false,
+    super.readOnly = false,
+    @Deprecated(
+      'Use `contextMenuBuilder` instead. '
+      'This feature was deprecated after v3.3.0-0.5.pre.',
+    )
+    super.toolbarOptions,
+    super.showCursor,
+    super.obscuringCharacter = '•',
+    super.obscureText = false,
+    super.autocorrect = true,
+    super.smartDashesType,
+    super.smartQuotesType,
+    super.enableSuggestions = true,
+    super.maxLengthEnforcement,
+    super.maxLines = 1,
+    super.minLines,
+    super.expands = false,
+    super.maxLength,
+    void Function(String)? onChanged,
+    super.onTap,
+    super.onTapAlwaysCalled = false,
+    super.onTapOutside,
+    super.onEditingComplete,
+    super.onFieldSubmitted,
+    super.onSaved,
+    super.validator,
+    super.inputFormatters,
+    super.enabled,
+    super.cursorWidth = 2.0,
+    super.cursorHeight,
+    super.cursorRadius,
+    super.cursorColor,
+    super.cursorErrorColor,
+    super.keyboardAppearance,
+    super.scrollPadding = const EdgeInsets.all(20.0),
+    super.enableInteractiveSelection,
+    super.selectionControls,
+    super.buildCounter,
+    super.scrollPhysics,
+    super.autofillHints,
+    super.autovalidateMode,
+    super.scrollController,
+    super.restorationId,
+    super.enableIMEPersonalizedLearning = true,
+    super.mouseCursor,
+    super.contextMenuBuilder = _defaultContextMenuBuilder,
+    super.spellCheckConfiguration,
+    super.magnifierConfiguration,
+    super.undoController,
+    super.onAppPrivateCommand,
+    super.cursorOpacityAnimates,
+    super.selectionHeightStyle = ui.BoxHeightStyle.tight,
+    super.selectionWidthStyle = ui.BoxWidthStyle.tight,
+    super.dragStartBehavior = DragStartBehavior.start,
+    super.contentInsertionConfiguration,
+    super.statesController,
+    super.clipBehavior = Clip.hardEdge,
+    super.scribbleEnabled = true,
+    super.canRequestFocus = true,
+  }) : super(
+            controller: controller,
+            onChanged: (value) {
+              if (controller is MentionTagTextEditingController?) {
+                try {
+                  controller?.onChanged(value);
+                  onChanged?.call(value);
+                } catch (e, s) {
+                  debugPrint(e.toString());
+                  debugPrint(s.toString());
+                }
+              } else {
+                onChanged?.call(value);
+              }
+            }) {
+    if (controller is MentionTagTextEditingController?) {
+      _setControllerProperties(controller);
+    }
+  }
+
+  /// Provides the mention value whenever a mention is initiated, indicated by the mention start character
+  /// (e.g., "@"), and ends when a space character is encountered.
+  final void Function(String?)? onMention;
+
+  /// Indicates the decoration related to mentions or tags
+  final MentionTagDecoration mentionTagDecoration;
+
+  static Widget _defaultContextMenuBuilder(
+      BuildContext context, EditableTextState editableTextState) {
+    return AdaptiveTextSelectionToolbar.editableText(
+      editableTextState: editableTextState,
+    );
+  }
+
+  void _setControllerProperties(
+      MentionTagTextEditingController? mentionController) {
+    if (mentionController == null) return;
+    mentionController.mentionTagDecoration = mentionTagDecoration;
+    mentionController.onMention = onMention;
+  }
+}
