@@ -20,6 +20,7 @@ class MentionTagTextEditingController extends TextEditingController {
   String _replaceLastSubstring(String replacement) {
     if (text.length == 1) {
       text = text + replacement + mentionTagDecoration.mentionBreak;
+      _temp = text;
       return text[0];
     }
 
@@ -29,6 +30,8 @@ class MentionTagTextEditingController extends TextEditingController {
 
     text = text.replaceRange(indexMentionStart, indexCursor,
         "$replacement${mentionTagDecoration.mentionBreak}");
+
+    _temp = text;
 
     return text[indexMentionStart - 1];
   }
@@ -61,14 +64,11 @@ class MentionTagTextEditingController extends TextEditingController {
       return null;
     }
 
-    print("MentionStart: $indexMentionStart Cursor: $indexCursor");
-
     if (indexMentionStart != -1) {
       if (value.length == 1) return value.first;
 
       indexMentionStart = indexCursor - indexMentionStart;
 
-      print("MentionStart: $indexMentionStart Cursor: $indexCursor");
       if (indexMentionStart != -1 &&
           indexMentionStart >= 0 &&
           indexMentionStart <= indexCursor) {
@@ -103,7 +103,7 @@ class MentionTagTextEditingController extends TextEditingController {
   }
 
   List<String> _extractMentions(String text) {
-    List<String> words = text.split(' ');
+    List<String> words = text.split(mentionTagDecoration.mentionEnd);
     List<String> mentions = [];
 
     for (final mentionStart in mentionTagDecoration.mentionStart) {

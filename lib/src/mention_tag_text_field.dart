@@ -9,7 +9,7 @@ import 'package:mention_tag_text_field/src/mention_tag_text_editing_controller.d
 class MentionTagTextField extends TextField {
   MentionTagTextField({
     super.key,
-    MentionTagTextEditingController? controller,
+    TextEditingController? controller,
     this.onMention,
     this.mentionTagDecoration = const MentionTagDecoration(),
     super.focusNode,
@@ -82,15 +82,21 @@ class MentionTagTextField extends TextField {
   }) : super(
             controller: controller,
             onChanged: (value) {
-              try {
-                controller?.onChanged(value);
+              if (controller is MentionTagTextEditingController?) {
+                try {
+                  controller?.onChanged(value);
+                  onChanged?.call(value);
+                } catch (e, s) {
+                  debugPrint(e.toString());
+                  debugPrint(s.toString());
+                }
+              } else {
                 onChanged?.call(value);
-              } catch (e, s) {
-                debugPrint(e.toString());
-                debugPrint(s.toString());
               }
             }) {
-    _setControllerProperties(controller);
+    if (controller is MentionTagTextEditingController?) {
+      _setControllerProperties(controller);
+    }
   }
 
   /// Provides the mention value whenever a mention is initiated, indicated by the mention start character
