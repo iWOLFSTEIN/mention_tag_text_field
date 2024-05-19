@@ -81,8 +81,10 @@ class _MentionTagTextFieldExampleState
       height: 50,
       child: TextButton(
         onPressed: () {
-          allMentions =
-              _controller.mentions.map((e) => e.mention).toList().join(' ');
+          allMentions = _controller.mentions
+              .map((user) => user.username)
+              .toList()
+              .join(' ');
           setState(() {});
         },
         child: const Text(
@@ -103,6 +105,7 @@ class _MentionTagTextFieldExampleState
       mentionTagDecoration: const MentionTagDecoration(
           mentionBreak: ' ',
           mentionStart: ['@', '#'],
+          allowDecrement: false,
           mentionTextStyle: TextStyle(color: Colors.blue)),
     );
   }
@@ -112,9 +115,17 @@ class _MentionTagTextFieldExampleState
       color: Colors.orange,
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
-      child: Text(
-        allMentions!,
-        style: const TextStyle(color: Colors.white),
+      child: Column(
+        children: [
+          Text(
+            allMentions!,
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            _controller.text,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
       ),
     );
   }
@@ -126,9 +137,9 @@ class _MentionTagTextFieldExampleState
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  _controller
-                      .addMention(MentionTagData(mention: usernames[index]));
-                  // isMentionStarted = false;
+                  _controller.addMention(
+                      label: usernames[index],
+                      data: User(username: usernames[index]));
                   mentionValue = null;
                   setState(() {});
                 },
@@ -152,4 +163,9 @@ class _MentionTagTextFieldExampleState
             length, (_) => allCharacters[random.nextInt(allCharacters.length)])
         .join();
   }
+}
+
+class User {
+  const User({required this.username});
+  final String username;
 }

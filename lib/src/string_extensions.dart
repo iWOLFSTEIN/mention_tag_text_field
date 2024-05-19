@@ -1,4 +1,10 @@
 extension StringExtensions on String {
+  /// Count the number of characters in this string.
+  int countChar(String char) => char.allMatches(this).length;
+
+  /// Reverse the string
+  String get reversed => split('').reversed.join();
+
   /// Get the first character in the string
   String get first {
     if (isNotEmpty) {

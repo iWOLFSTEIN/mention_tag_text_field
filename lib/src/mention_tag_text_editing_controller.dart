@@ -1,50 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
+import 'package:mention_tag_text_field/src/constants.dart';
 import 'package:mention_tag_text_field/src/mention_tag_data.dart';
 import 'package:mention_tag_text_field/src/mention_tag_decoration.dart';
 import 'package:mention_tag_text_field/src/string_extensions.dart';
 
 class MentionTagTextEditingController extends TextEditingController {
-  List<MentionTagData> mentions = [];
+  final List<MentionTagElement> _mentions = [];
+
+  List get mentions =>
+      List.from(_mentions.map((mention) => mention.data ?? mention.mention));
+
+  @override
+  String get text {
+    final List<MentionTagElement> tempList = List.from(_mentions);
+    return super.text.replaceAllMapped(
+        Constants.mentionEscape, (match) => tempList.removeAt(0).mention);
+  }
+
   late MentionTagDecoration mentionTagDecoration;
   void Function(String?)? onMention;
   String _temp = '';
+  String? mentionInput;
 
-  void addMention(MentionTagData mentionData) {
-    String mentionSymbol = _replaceLastSubstring(mentionData.mention);
-    mentionData.mention = "$mentionSymbol${mentionData.mention}";
+  /// Mention or Tag label, this label will be visible in the Text Field.
+  ///
+  /// The data associated with this mention. You can get this data using _controller.mentions property.
+  /// If you do not pass any data, a list of the mention labels will be returned.
+  /// If you skip some values, mentioned labels will be added in those places.
+  void addMention({
+    required String label,
+    Object? data,
+  }) {
+    final indexCursor = selection.base.offset;
+    final mentionSymbol = mentionInput!.first;
 
-    mentions.add(mentionData);
-  }
+    final MentionTagElement mentionTagElement =
+        MentionTagElement(mention: "$mentionSymbol$label", data: data);
 
-  String _replaceLastSubstring(String replacement) {
-    if (text.length == 1) {
-      text = text + replacement + mentionTagDecoration.mentionBreak;
-      _temp = text;
-      return text[0];
+    if (!mentionTagDecoration.allowDecrement) {
+      final textPart = super.text.substring(0, indexCursor);
+      final indexPosition = textPart.countChar(Constants.mentionEscape);
+      _mentions.insert(indexPosition, mentionTagElement);
+    } else {
+      _mentions.add(mentionTagElement);
     }
 
-    final indexCursor = selection.base.offset;
-    var indexMentionStart = _getIndexMentionStart(indexCursor, text);
-    indexMentionStart = indexCursor - indexMentionStart;
-
-    text = text.replaceRange(indexMentionStart, indexCursor,
-        "$replacement${mentionTagDecoration.mentionBreak}");
-
-    _temp = text;
-
-    return text[indexMentionStart - 1];
+    String _ = !mentionTagDecoration.allowDecrement
+        ? _replaceLastSubstringWithEscaping(indexCursor, mentionInput!)
+        : _replaceLastSubstring(indexCursor, label);
   }
 
-  int _getIndexMentionStart(int indexCursor, String value) {
+  String _replaceLastSubstringWithEscaping(
+      int indexCursor, String replacement) {
+    String mentionStartSymbol = _replaceLastSubstring(
+        indexCursor, Constants.mentionEscape,
+        allowDecrement: false);
+    selection =
+        TextSelection.collapsed(offset: indexCursor - replacement.length + 2);
+    return mentionStartSymbol;
+  }
+
+  String _replaceLastSubstring(int indexCursor, String replacement,
+      {bool allowDecrement = true}) {
+    if (super.text.length == 1) {
+      final String mentionStartSymbol = super.text;
+      super.text = !allowDecrement
+          ? "$replacement${mentionTagDecoration.mentionBreak}"
+          : "$text$replacement${mentionTagDecoration.mentionBreak}";
+
+      _temp = super.text;
+      return mentionStartSymbol;
+    }
+
+    var indexMentionStart = _getIndexFromMentionStart(indexCursor, super.text);
+    indexMentionStart = indexCursor - indexMentionStart;
+    final String mentionStartSymbol = super.text[indexMentionStart - 1];
+
+    super.text = super.text.replaceRange(
+        !allowDecrement ? indexMentionStart - 1 : indexMentionStart,
+        indexCursor,
+        "$replacement${mentionTagDecoration.mentionBreak}");
+
+    _temp = super.text;
+
+    return mentionStartSymbol;
+  }
+
+  int _getIndexFromMentionStart(int indexCursor, String value) {
     final mentionStartPattern =
         RegExp(mentionTagDecoration.mentionStart.join('|'));
-    var indexMentionStart = value
-        .substring(0, indexCursor)
-        .split('')
-        .reversed
-        .join()
-        .indexOf(mentionStartPattern);
+    var indexMentionStart =
+        value.substring(0, indexCursor).reversed.indexOf(mentionStartPattern);
     return indexMentionStart;
   }
 
@@ -53,12 +99,10 @@ class MentionTagTextEditingController extends TextEditingController {
 
     var indexMentionEnd = value
         .substring(0, indexCursor)
-        .split('')
         .reversed
-        .join()
         .indexOf(mentionTagDecoration.mentionEnd);
 
-    var indexMentionStart = _getIndexMentionStart(indexCursor, value);
+    var indexMentionStart = _getIndexFromMentionStart(indexCursor, value);
 
     if (indexMentionEnd != -1 && indexMentionEnd < indexMentionStart) {
       return null;
@@ -82,68 +126,108 @@ class MentionTagTextEditingController extends TextEditingController {
     if (onMention == null) return;
     String? mention = _getMention(value);
     onMention!(mention);
+    mentionInput = mention;
 
     if (value.length < _temp.length) {
-      _updateAllMentions(value);
+      _updadeMentions(value);
     }
 
     _temp = value;
   }
 
-  void _updateAllMentions(String text) {
-    final List<String> allMentions = _extractMentions(text);
-    final List<MentionTagData> mentionsCopy = List.from(mentions);
+  void _updadeMentions(String value) {
+    final indexCursor = selection.base.offset;
 
-    for (final mention in mentionsCopy) {
-      if (!allMentions.contains(mention.mention)) {
-        mentions.removeWhere(
-            (mentionData) => mentionData.mention == mention.mention);
-      }
+    if (mentionTagDecoration.allowDecrement) {
+      if (indexCursor - 1 < 0) return;
+      if (value[indexCursor - 1] != Constants.mentionEscape) return;
     }
+
+    int mentionsCount = value.countChar(Constants.mentionEscape);
+    if (mentionsCount == _mentions.length) return;
+
+    final textPart = super.text.substring(0, indexCursor);
+    mentionsCount = textPart.countChar(Constants.mentionEscape);
+    _mentions.removeAt(mentionsCount);
   }
 
-  List<String> _extractMentions(String text) {
-    List<String> words = text.split(mentionTagDecoration.mentionEnd);
-    List<String> mentions = [];
+  // void _updateAllMentions(String value) {
+  //   final List<String> allMentions =
+  //       _extractMentions(value, splitBy: Constants.mentionEscape);
+  //   final List<MentionTagElement> mentionsCopy = List.from(_mentions);
 
-    for (final mentionStart in mentionTagDecoration.mentionStart) {
-      for (String word in words) {
-        if (word.startsWith(mentionStart)) {
-          mentions.add(word);
-        }
-      }
-    }
-    return mentions;
-  }
+  //   for (final mention in mentionsCopy) {
+  //     if (!allMentions.contains(mention.mention)) {
+  //       _mentions.removeWhere(
+  //           (mentionData) => mentionData.mention == mention.mention);
+  //     }
+  //   }
+  // }
+
+  // List<String> _extractMentions(String value, {String? splitBy}) {
+  //   List<String> words = value.split(splitBy ?? mentionTagDecoration.mentionEnd);
+  //   List<String> allMentions = [];
+
+  //   for (final mentionStart in mentionTagDecoration.mentionStart) {
+  //     for (String word in words) {
+  //       if (word.startsWith(mentionStart)) {
+  //         allMentions.add(word);
+  //       }
+  //     }
+  //   }
+  //   return allMentions;
+  // }
 
   @override
   TextSpan buildTextSpan(
       {required BuildContext context,
       TextStyle? style,
       required bool withComposing}) {
-    List<InlineSpan> children = [];
+    final regexp = RegExp(
+        '(?=${Constants.mentionEscape})|(?<=${Constants.mentionEscape})');
+    final res = super.text.split(regexp);
+    final List tempList = List.from(_mentions);
 
-    final mentionStartPattern = mentionTagDecoration.mentionStart.join('|');
-    final mentionRegex = RegExp('(?:$mentionStartPattern)\\S+');
+    return TextSpan(
+      style: style,
+      children: res.map((e) {
+        if (e == Constants.mentionEscape) {
+          final mention = tempList.removeAt(0);
 
-    var textParts = text.split(mentionRegex);
-    var mentionMatches = mentionRegex.allMatches(text);
+          return WidgetSpan(
+            child: Text(
+              mention.mention,
+              style: mentionTagDecoration.mentionTextStyle,
+            ),
+          );
+        }
+        return TextSpan(text: e, style: style);
+      }).toList(),
+    );
 
-    for (var i = 0; i < textParts.length; i++) {
-      children.add(TextSpan(text: textParts[i], style: style));
-      if (i < mentionMatches.length) {
-        final mention = mentionMatches.elementAt(i).group(0);
-        bool isMentioned = mentions.firstWhereOrNull((element) {
-              return element.mention == mention;
-            }) !=
-            null;
-        children.add(TextSpan(
-            text: mention,
-            style:
-                isMentioned ? mentionTagDecoration.mentionTextStyle : style));
-      }
-    }
+    // List<InlineSpan> children = [];
 
-    return TextSpan(style: style, children: children);
+    // final mentionStartPattern = mentionTagDecoration.mentionStart.join('|');
+    // final mentionRegex = RegExp('(?:$mentionStartPattern)\\S+');
+
+    // var textParts = super.text.split(mentionRegex);
+    // var mentionMatches = mentionRegex.allMatches(super.text);
+
+    // for (var i = 0; i < super.textParts.length; i++) {
+    //   children.add(TextSpan(text: textParts[i], style: style));
+    //   if (i < mentionMatches.length) {
+    //     final mention = mentionMatches.elementAt(i).group(0);
+    //     bool isMentioned = _mentions.firstWhereOrNull((element) {
+    //           return element.mention == mention;
+    //         }) !=
+    //         null;
+    //     children.add(TextSpan(
+    //         text: mention,
+    //         style:
+    //             isMentioned ? mentionTagDecoration.mentionTextStyle : style));
+    //   }
+    // }
+
+    // return TextSpan(style: style, children: children);
   }
 }
