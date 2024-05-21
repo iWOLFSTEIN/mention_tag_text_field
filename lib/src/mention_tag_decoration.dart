@@ -4,13 +4,15 @@ class MentionTagDecoration {
   const MentionTagDecoration({
     this.mentionStart = const ['@', '#'],
     this.mentionBreak = ' ',
-    this.isSingleWordMention = true,
-    this.mentionEnd = ' ',
+    this.maxWords = 1,
     this.mentionTextStyle =
         const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
     this.allowDecrement = true,
     this.allowEmbedding = false,
-  });
+  }) : assert(
+          maxWords > 0,
+          "maxWords must be greater than 0",
+        );
 
   /// Indicates the start point of mention or tag.
   final List<String> mentionStart;
@@ -22,15 +24,8 @@ class MentionTagDecoration {
   /// TextStyle of mentioned or tagged text.
   final TextStyle mentionTextStyle;
 
-  /// Default value is true and is useful for hashtags or usernames.
-  /// mentionEnd property is used along with this to recognise single word mention or tags.
-  ///
-  /// The onMention callback will return null once you hit mentionEnd if this sets to true.
-  final bool isSingleWordMention;
-
-  /// Only used when isSingleWordMention set to true.
-  /// This property is used along with this to recognise single word mention or tags
-  final String mentionEnd;
+  /// The max amount of words a mention can have, must greater than zero.
+  final int maxWords;
 
   /// Allow mentions to remove in decrement.
   ///

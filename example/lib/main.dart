@@ -102,11 +102,12 @@ class _MentionTagTextFieldExampleState
         mentionValue = value;
         setState(() {});
       },
-      mentionTagDecoration: const MentionTagDecoration(
+      mentionTagDecoration: MentionTagDecoration(
           mentionBreak: ' ',
           mentionStart: ['@', '#'],
-          allowDecrement: false,
-          mentionTextStyle: TextStyle(color: Colors.blue)),
+          allowDecrement: true,
+          mentionTextStyle: TextStyle(
+              color: Colors.blue, backgroundColor: Colors.blue.shade50)),
     );
   }
 
@@ -137,11 +138,15 @@ class _MentionTagTextFieldExampleState
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  _controller.addMention(
-                      label: usernames[index],
-                      data: User(username: usernames[index]));
-                  mentionValue = null;
-                  setState(() {});
+                  try {
+                    _controller.addMention(
+                        label: usernames[index],
+                        data: User(username: usernames[index]));
+                    mentionValue = null;
+                    setState(() {});
+                  } catch (e) {
+                    debugPrint(e.toString());
+                  }
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
