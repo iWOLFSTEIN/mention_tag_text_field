@@ -103,9 +103,11 @@ class _MentionTagTextFieldExampleState
         setState(() {});
       },
       mentionTagDecoration: MentionTagDecoration(
-          mentionBreak: ' ',
           mentionStart: ['@', '#'],
+          mentionBreak: ' ',
           allowDecrement: true,
+          allowEmbedding: false,
+          maxWords: 1,
           mentionTextStyle: TextStyle(
               color: Colors.blue, backgroundColor: Colors.blue.shade50)),
     );

@@ -84,22 +84,36 @@ class MentionTagTextEditingController extends TextEditingController {
     return indexMentionStart;
   }
 
+  bool _isMentionEmbeddedOrDistinct(String value, int indexMentionStart) {
+    final indexMentionStartSymbol = indexMentionStart - 1;
+    if (indexMentionStartSymbol == 0) return true;
+    if (mentionTagDecoration.allowEmbedding) return true;
+    if (value[indexMentionStartSymbol - 1] == Constants.mentionEscape) {
+      return true;
+    }
+    if (value[indexMentionStartSymbol - 1] == ' ') return true;
+    return false;
+  }
+
   String? _getMention(String value) {
     final indexCursor = selection.base.offset;
 
 // TODO: Change here when maxWords is implemented
-    var indexMentionEnd = value.substring(0, indexCursor).reversed.indexOf(' ');
+    final indexMentionEnd =
+        value.substring(0, indexCursor).reversed.indexOf(' ');
 
-    var indexMentionStart = _getIndexFromMentionStart(indexCursor, value);
+    final indexMentionFromStart = _getIndexFromMentionStart(indexCursor, value);
 
-    if (indexMentionEnd != -1 && indexMentionEnd < indexMentionStart) {
+    if (indexMentionEnd != -1 && indexMentionEnd < indexMentionFromStart) {
       return null;
     }
 
-    if (indexMentionStart != -1) {
+    if (indexMentionFromStart != -1) {
       if (value.length == 1) return value.first;
 
-      indexMentionStart = indexCursor - indexMentionStart;
+      final indexMentionStart = indexCursor - indexMentionFromStart;
+
+      if (!_isMentionEmbeddedOrDistinct(value, indexMentionStart)) return null;
 
       if (indexMentionStart != -1 &&
           indexMentionStart >= 0 &&
