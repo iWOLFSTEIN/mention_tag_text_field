@@ -41,7 +41,7 @@ class _MentionTagTextFieldExampleState
   @override
   void initState() {
     super.initState();
-    _controller.text = "mentioning user @talha and @kahn";
+    _controller.text = "mentioning user @rowan and @alex";
   }
 
   String? mentionValue;
@@ -104,7 +104,7 @@ class _MentionTagTextFieldExampleState
   MentionTagTextField mentionField() {
     return MentionTagTextField(
       controller: _controller,
-      initialMentions: const [('@talha', User(username: 'talha'))],
+      initialMentions: const [('@rowan', User(username: 'rowan'))],
       onMention: (value) {
         mentionValue = value;
         setState(() {});
@@ -183,7 +183,7 @@ class _MentionTagTextFieldExampleState
       }
     }).join();
 
-    return username.trim(); // Trim spaces at the start or end
+    return username.trim();
   }
 }
 
