@@ -38,6 +38,12 @@ class _MentionTagTextFieldExampleState
   final MentionTagTextEditingController _controller =
       MentionTagTextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _controller.text = "mentioning user @talha and @kahn";
+  }
+
   String? mentionValue;
   late List<String> usernames = [
     for (int i = 0; i < 10; i++) generateRandomUserName()
@@ -98,6 +104,7 @@ class _MentionTagTextFieldExampleState
   MentionTagTextField mentionField() {
     return MentionTagTextField(
       controller: _controller,
+      initialMentions: const [('@talha', User(username: 'talha'))],
       onMention: (value) {
         mentionValue = value;
         setState(() {});

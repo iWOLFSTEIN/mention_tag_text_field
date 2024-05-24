@@ -10,6 +10,7 @@ class MentionTagTextField extends TextField {
   MentionTagTextField({
     super.key,
     TextEditingController? controller,
+    this.initialMentions = const [],
     this.onMention,
     this.mentionTagDecoration = const MentionTagDecoration(),
     super.focusNode,
@@ -95,7 +96,7 @@ class MentionTagTextField extends TextField {
               }
             }) {
     if (controller is MentionTagTextEditingController?) {
-      _setControllerProperties(controller);
+      _setControllerProperties(controller, initialMentions);
     }
   }
 
@@ -106,6 +107,14 @@ class MentionTagTextField extends TextField {
   /// Indicates the decoration related to mentions or tags
   final MentionTagDecoration mentionTagDecoration;
 
+  /// Initial list of mentions which are present in the initial text set to textfield using _controller.text setter.
+  ///
+  /// Each mention in the list should be a tuple with first value as mention label present in the textfield and second value is the data associated with that mention or tag.
+  ///
+  /// Note: While setting initialMentions you must provide mention symbol associated with each mention. For example, ("@rowan", null) is a valid tuple and ("rowan", null) will be ignored.
+  /// You don't need to add mention symbol later when setting mentions during editing using _controller.setMention, you can do _controller.setMention("rowan", null) and corresponding mention symbol will be added automatically.
+  final List<(String, Object?)> initialMentions;
+
   static Widget _defaultContextMenuBuilder(
       BuildContext context, EditableTextState editableTextState) {
     return AdaptiveTextSelectionToolbar.editableText(
@@ -114,10 +123,12 @@ class MentionTagTextField extends TextField {
   }
 
   void _setControllerProperties(
-      MentionTagTextEditingController? mentionController) {
+      MentionTagTextEditingController? mentionController,
+      List<(String, Object?)> initialMentions) {
     if (mentionController == null) return;
     mentionController.mentionTagDecoration = mentionTagDecoration;
     mentionController.onMention = onMention;
+    mentionController.initialMentions = initialMentions;
   }
 }
 
@@ -125,6 +136,7 @@ class MentionTagTextFormField extends TextFormField {
   MentionTagTextFormField({
     super.key,
     TextEditingController? controller,
+    this.initialMentions = const [],
     this.onMention,
     this.mentionTagDecoration = const MentionTagDecoration(),
     super.initialValue,
@@ -214,7 +226,7 @@ class MentionTagTextFormField extends TextFormField {
               }
             }) {
     if (controller is MentionTagTextEditingController?) {
-      _setControllerProperties(controller);
+      _setControllerProperties(controller, initialMentions);
     }
   }
 
@@ -225,6 +237,14 @@ class MentionTagTextFormField extends TextFormField {
   /// Indicates the decoration related to mentions or tags
   final MentionTagDecoration mentionTagDecoration;
 
+  /// Initial list of mentions which are present in the initial text set to textfield using _controller.text setter.
+  ///
+  /// Each mention in the list should be a tuple with first value as mention label present in the textfield and second value is the data associated with that mention or tag.
+  ///
+  /// Note: While setting initialMentions you must provide mention symbol associated with each mention. For example, ("@rowan", null) is a valid tuple and ("rowan", null) will be ignored.
+  /// You don't need to add mention symbol later when setting mentions during editing using _controller.setMention, you can do _controller.setMention("rowan", null) and corresponding mention symbol will be added automatically.
+  final List<(String, Object?)> initialMentions;
+
   static Widget _defaultContextMenuBuilder(
       BuildContext context, EditableTextState editableTextState) {
     return AdaptiveTextSelectionToolbar.editableText(
@@ -233,9 +253,11 @@ class MentionTagTextFormField extends TextFormField {
   }
 
   void _setControllerProperties(
-      MentionTagTextEditingController? mentionController) {
+      MentionTagTextEditingController? mentionController,
+      List<(String, Object?)> initialMentions) {
     if (mentionController == null) return;
     mentionController.mentionTagDecoration = mentionTagDecoration;
     mentionController.onMention = onMention;
+    mentionController.initialMentions = initialMentions;
   }
 }

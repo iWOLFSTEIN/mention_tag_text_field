@@ -20,6 +20,17 @@ class MentionTagTextEditingController extends TextEditingController {
 
   late MentionTagDecoration mentionTagDecoration;
   void Function(String?)? onMention;
+
+  set initialMentions(List<(String, Object?)> value) {
+    for (final mentionTuple in value) {
+      if (!super.text.contains(mentionTuple.$1)) return;
+      super.text =
+          super.text.replaceFirst(mentionTuple.$1, Constants.mentionEscape);
+      _mentions.add(
+          MentionTagElement(mention: mentionTuple.$1, data: mentionTuple.$2));
+    }
+  }
+
   String _temp = '';
   String? mentionInput;
 
@@ -101,9 +112,6 @@ class MentionTagTextEditingController extends TextEditingController {
     final indexMentionFromStart = _getIndexFromMentionStart(indexCursor, value);
 
     if (mentionTagDecoration.maxWords != null) {
-      // TODO: Change here when maxWords is implemented
-      // final indexMentionEnd =
-      //     value.substring(0, indexCursor).reversed.indexOf(' ');
       final indexMentionEnd = value
           .substring(0, indexCursor)
           .reversed
