@@ -107,7 +107,7 @@ class _MentionTagTextFieldExampleState
           mentionBreak: ' ',
           allowDecrement: true,
           allowEmbedding: false,
-          maxWords: 1,
+          maxWords: 2,
           mentionTextStyle: TextStyle(
               color: Colors.blue, backgroundColor: Colors.blue.shade50)),
     );
@@ -158,17 +158,25 @@ class _MentionTagTextFieldExampleState
             }));
   }
 
-  String generateRandomUserName({int length = 6}) {
+  String generateRandomUserName(
+      {int length = 6, double spaceProbability = 0.1}) {
     const letters = 'abcdefghijklmnopqrstuvwxyz';
     const digits = '0123456789';
     const specials = '_-';
+    const space = ' ';
 
-    const allCharacters = '$letters$digits$specials';
+    const allCharacters = '$letters$digits$specials$space';
 
     final random = Random();
-    return List.generate(
-            length, (_) => allCharacters[random.nextInt(allCharacters.length)])
-        .join();
+    final username = List.generate(length, (_) {
+      if (random.nextDouble() < spaceProbability) {
+        return space;
+      } else {
+        return allCharacters[random.nextInt(allCharacters.length)];
+      }
+    }).join();
+
+    return username.trim(); // Trim spaces at the start or end
   }
 }
 

@@ -98,14 +98,20 @@ class MentionTagTextEditingController extends TextEditingController {
   String? _getMention(String value) {
     final indexCursor = selection.base.offset;
 
-// TODO: Change here when maxWords is implemented
-    final indexMentionEnd =
-        value.substring(0, indexCursor).reversed.indexOf(' ');
-
     final indexMentionFromStart = _getIndexFromMentionStart(indexCursor, value);
 
-    if (indexMentionEnd != -1 && indexMentionEnd < indexMentionFromStart) {
-      return null;
+    if (mentionTagDecoration.maxWords != null) {
+      // TODO: Change here when maxWords is implemented
+      // final indexMentionEnd =
+      //     value.substring(0, indexCursor).reversed.indexOf(' ');
+      final indexMentionEnd = value
+          .substring(0, indexCursor)
+          .reversed
+          .indexOfNthSpace(mentionTagDecoration.maxWords!);
+
+      if (indexMentionEnd != -1 && indexMentionEnd < indexMentionFromStart) {
+        return null;
+      }
     }
 
     if (indexMentionFromStart != -1) {

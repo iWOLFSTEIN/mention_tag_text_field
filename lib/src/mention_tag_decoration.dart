@@ -10,8 +10,8 @@ class MentionTagDecoration {
     this.allowDecrement = true,
     this.allowEmbedding = false,
   }) : assert(
-          maxWords > 0,
-          "maxWords must be greater than 0",
+          maxWords == null ? true : maxWords > 0,
+          "maxWords must be greater than 0 or null",
         );
 
   /// Indicates the start point of mention or tag.
@@ -25,7 +25,7 @@ class MentionTagDecoration {
   final TextStyle mentionTextStyle;
 
   /// The max amount of words a mention can have, must greater than zero.
-  final int maxWords;
+  final int? maxWords;
 
   /// Allow mentions to remove in decrement.
   ///

@@ -32,4 +32,21 @@ extension StringExtensions on String {
     }
     return this;
   }
+
+  /// Returns the index of space after skipping a certain amount of space.
+  /// This is used to return the number of words in mentions.
+  int indexOfNthSpace(int n) {
+    if (n <= 0) return -1;
+
+    int spaceCount = 0;
+    for (int i = 0; i < length; i++) {
+      if (this[i] == ' ') {
+        spaceCount++;
+        if (spaceCount == n) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
 }
