@@ -1,7 +1,8 @@
-import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mention_tag_text_field/mention_tag_text_field.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +14,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Example',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -41,15 +41,11 @@ class _MentionTagTextFieldExampleState
   @override
   void initState() {
     super.initState();
-    _controller.text = "mentioning user @rowan and @alex";
+    // _controller.text = "@Emily Johnson ";
   }
 
   String? mentionValue;
-  late List<String> usernames = [
-    for (int i = 0; i < 10; i++) generateRandomUserName()
-  ];
-
-  String? allMentions;
+  List searchResults = [];
 
   @override
   Widget build(BuildContext context) {
@@ -64,15 +60,10 @@ class _MentionTagTextFieldExampleState
                 suggestions()
               else
                 const Expanded(child: SizedBox()),
-              if (allMentions != null) selectedMentions(),
               const SizedBox(
                 height: 16,
               ),
               mentionField(),
-              const SizedBox(
-                height: 16,
-              ),
-              getAllMentionsButton()
             ],
           ),
         ),
@@ -80,114 +71,102 @@ class _MentionTagTextFieldExampleState
     );
   }
 
-  Container getAllMentionsButton() {
-    return Container(
-      color: Colors.blue,
-      width: double.infinity,
-      height: 50,
-      child: TextButton(
-        onPressed: () {
-          allMentions = _controller.mentions
-              .map((user) => user.username)
-              .toList()
-              .join(' ');
-          setState(() {});
-        },
-        child: const Text(
-          'Get All Mentions',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
   MentionTagTextField mentionField() {
+    final border = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none);
     return MentionTagTextField(
       controller: _controller,
-      initialMentions: const [('@rowan', User(username: 'rowan'))],
-      onMention: (value) {
-        mentionValue = value;
-        setState(() {});
-      },
+      initialMentions: const [
+        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'))
+      ],
+      onMention: onMention,
       mentionTagDecoration: MentionTagDecoration(
           mentionStart: ['@', '#'],
           mentionBreak: ' ',
           allowDecrement: true,
           allowEmbedding: false,
-          maxWords: 2,
+          showMentionStartSymbol: false,
+          maxWords: null,
           mentionTextStyle: TextStyle(
               color: Colors.blue, backgroundColor: Colors.blue.shade50)),
+      decoration: InputDecoration(
+          hintText: 'Write something...',
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: border,
+          focusedBorder: border,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0)),
     );
   }
 
-  Container selectedMentions() {
-    return Container(
-      color: Colors.orange,
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            allMentions!,
-            style: const TextStyle(color: Colors.white),
-          ),
-          Text(
-            _controller.text,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Expanded suggestions() {
-    return Expanded(
+  Widget suggestions() {
+    if (searchResults.isEmpty) {
+      return const Expanded(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return Flexible(
+        fit: FlexFit.loose,
         child: ListView.builder(
-            itemCount: usernames.length,
+            itemCount: searchResults.length,
+            reverse: true,
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  try {
-                    _controller.addMention(
-                        label: usernames[index],
-                        data: User(username: usernames[index]));
-                    mentionValue = null;
-                    setState(() {});
-                  } catch (e) {
-                    debugPrint(e.toString());
-                  }
+                  _controller.addMention(
+                      label:
+                          "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}",
+                      data: User(
+                          id: searchResults[index]['id'],
+                          name:
+                              "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}"));
+                  mentionValue = null;
+                  setState(() {});
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(usernames[index]),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(searchResults[index]['image']),
+                  ),
+                  title: Text(
+                      "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}"),
+                  subtitle: Text(
+                    "@${searchResults[index]['username']}",
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  ),
                 ),
               );
             }));
   }
 
-  String generateRandomUserName(
-      {int length = 6, double spaceProbability = 0.1}) {
-    const letters = 'abcdefghijklmnopqrstuvwxyz';
-    const digits = '0123456789';
-    const specials = '_-';
-    const space = ' ';
+  Future<void> onMention(String? value) async {
+    mentionValue = value;
+    searchResults.clear();
+    setState(() {});
+    if (value == null) return;
+    final searchInput = value.substring(1);
+    searchResults = await fetchSuggestionsFromServer(searchInput) ?? [];
+    setState(() {});
+  }
 
-    const allCharacters = '$letters$digits$specials$space';
-
-    final random = Random();
-    final username = List.generate(length, (_) {
-      if (random.nextDouble() < spaceProbability) {
-        return space;
-      } else {
-        return allCharacters[random.nextInt(allCharacters.length)];
-      }
-    }).join();
-
-    return username.trim();
+  Future<List?> fetchSuggestionsFromServer(String input) async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://dummyjson.com/users/search?q=$input'));
+      return jsonDecode(response.body)['users'];
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
   }
 }
 
 class User {
-  const User({required this.username});
-  final String username;
+  const User({required this.id, required this.name});
+  final int id;
+  final String name;
 }

@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   mention_tag_text_field:
     path: ../
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

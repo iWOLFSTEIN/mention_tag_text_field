@@ -26,6 +26,7 @@ class MentionTagTextEditingController extends TextEditingController {
       if (!super.text.contains(mentionTuple.$1)) return;
       super.text =
           super.text.replaceFirst(mentionTuple.$1, Constants.mentionEscape);
+      _temp = super.text;
       _mentions.add(
           MentionTagElement(mention: mentionTuple.$1, data: mentionTuple.$2));
     }
@@ -160,6 +161,7 @@ class MentionTagTextEditingController extends TextEditingController {
     int mentionsCountTillCursor,
     int indexCursor,
   ) {
+    if (_temp.length - value.length != 1) return;
     if (!mentionTagDecoration.allowDecrement) return;
     if (mentionsCountTillCursor < 1) return;
 
@@ -191,7 +193,8 @@ class MentionTagTextEditingController extends TextEditingController {
       final MentionTagElement removedMention =
           _mentions.removeAt(mentionsCountTillCursor);
 
-      if (mentionTagDecoration.allowDecrement) {
+      if (mentionTagDecoration.allowDecrement &&
+          _temp.length - value.length == 1) {
         final replacementText = removedMention.mention
             .substring(0, removedMention.mention.length - 1);
         super.text =
@@ -223,7 +226,10 @@ class MentionTagTextEditingController extends TextEditingController {
 
           return WidgetSpan(
             child: Text(
-              mention.mention,
+              mentionTagDecoration.showMentionStartSymbol
+                  ? mention.mention
+                  : (mention.mention as String)
+                      .removeMentionStart(mentionTagDecoration.mentionStart),
               style: mentionTagDecoration.mentionTextStyle,
             ),
           );

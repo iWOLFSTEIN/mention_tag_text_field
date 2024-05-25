@@ -9,6 +9,7 @@ class MentionTagDecoration {
         const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
     this.allowDecrement = true,
     this.allowEmbedding = false,
+    this.showMentionStartSymbol = true,
   }) : assert(
           maxWords == null ? true : maxWords > 0,
           "maxWords must be greater than 0 or null",
@@ -24,7 +25,8 @@ class MentionTagDecoration {
   /// TextStyle of mentioned or tagged text.
   final TextStyle mentionTextStyle;
 
-  /// The max amount of words a mention can have, must greater than zero.
+  /// The max amount of words a mention can have, must be greater than zero or null.
+  /// In case of null, any number of words will be considered. That means onMention callback will send all the words after mention symbol unless you call setMention.
   final int? maxWords;
 
   /// Allow mentions to remove in decrement.
@@ -42,4 +44,7 @@ class MentionTagDecoration {
   ///
   /// In short, false value will cause the onMention callback to give mentions only if mention start symbol has a space behind it.
   final bool allowEmbedding;
+
+  /// Wether to show mention start symbol with your mentions in the textfield or not.
+  final bool showMentionStartSymbol;
 }
