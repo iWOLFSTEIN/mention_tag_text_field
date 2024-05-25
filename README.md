@@ -51,7 +51,7 @@ You can use MentionTagTextField just like you normal TextField. If you are using
                 onMention: (value) async {
                   mentionValue = value;
                   setState(() {});
-                  await getUsersFromNetwork(); // Write your logic to get search results
+                  await getUsersFromNetwork(); // Write your logic to get search results.
                 },
                 mentionTagDecoration: MentionTagDecoration(
                     // Define list of symbols where mention will be triggered.
@@ -63,13 +63,14 @@ You can use MentionTagTextField just like you normal TextField. If you are using
                     // Enable removing mention decrementally instead of all at once.
                     allowDecrement: true,
 
-                    // Represents if mention should be triggered if mention symbol is embedded in the text.
+                    // Prevent mention triggering if mention symbol is embedded in the text.
                     allowEmbedding: false,
 
                     // If mention symbol is visible or not with mentions in the textfield.
                     showMentionStartSymbol: false,
 
-                    // Max words a mention can have, must be greater than 0 or null. Null means any number of words.
+                    // Max words a mention can have, must be greater than 0 or null.
+                    // Null means any number of words.
                     maxWords: null,
 
                     // TextStyle for mentions
