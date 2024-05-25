@@ -5,9 +5,12 @@ This package extends the capabilties of a normal TextField or TextFormField to e
   </div>
 </div> -->
 <!-- [![SfUtS.gif](https://s10.gifyu.com/images/SfUtS.gif)](https://gifyu.com/image/SfUtS) -->
-<div style="display: flex; justify-content: center;">
+<p align="center">
   <img src="https://s10.gifyu.com/images/SfUtS.gif" alt="Demo GIF" />
-</div>
+</p>
+<!-- <p align="center">
+  <a href="https://zupimages.net/viewer.php?id=22/40/1xum.gif"><img src="Demo GIF" alt="" /></a>
+</p> -->
 
 
 
