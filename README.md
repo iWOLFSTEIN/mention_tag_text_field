@@ -46,7 +46,8 @@ You can use MentionTagTextField just like you normal TextField. If you are using
               MentionTagTextField(
                 controller: _controller,
 
-                // onMention will return text when mention is triggered, otherwise it'll return null.
+                // onMention will return text when mention is triggered,
+                // otherwise it'll return null.
                 onMention: (value) async {
                   mentionValue = value;
                   setState(() {});
