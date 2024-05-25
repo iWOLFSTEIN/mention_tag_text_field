@@ -1,17 +1,7 @@
 This package extends the capabilties of a normal TextField or TextFormField to enable mention or tagging.
-<!-- <div style="display: flex; justify-content: center;">
-  <div style="overflow: hidden; height: 600px;">
-    <iframe allow="fullscreen;autoplay" allowfullscreen height="800" src="https://streamable.com/e/y3gaye?autoplay=1&muted=1&nocontrols=1" width="400" style="border:none; margin-top: -200px;"></iframe>
-  </div>
-</div> -->
-<!-- [![SfUtS.gif](https://s10.gifyu.com/images/SfUtS.gif)](https://gifyu.com/image/SfUtS) -->
 <p align="center">
   <img src="https://s10.gifyu.com/images/SfUtS.gif" alt="Demo GIF" />
 </p>
-<!-- <p align="center">
-  <a href="https://zupimages.net/viewer.php?id=22/40/1xum.gif"><img src="Demo GIF" alt="" /></a>
-</p> -->
-
 
 
 ## Getting started
