@@ -99,6 +99,7 @@ You can use MentionTagTextField just like your normal TextField. If you are usin
 ```
 
 **Initial Mentions**
+
 You can also set the initial mentions if your initial text has mentions in it. First set the initial text,
 ```dart
 @override

@@ -278,11 +278,7 @@ class MentionTagTextEditingController extends TextEditingController {
             alignment: PlaceholderAlignment.middle,
             child: mention.stylingWidget ??
                 Text(
-                  // mentionTagDecoration.showMentionStartSymbol
-                  //     ?
                   mention.mention,
-                  // : (mention.mention as String)
-                  //     .removeMentionStart(mentionTagDecoration.mentionStart),
                   style: mentionTagDecoration.mentionTextStyle,
                 ),
           );

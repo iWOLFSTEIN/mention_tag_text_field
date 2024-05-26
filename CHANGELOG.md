@@ -1,3 +1,8 @@
+## 0.0.3
+**Added**
+
+- Documentation updated.
+
 ## 0.0.2
 **Added**
 
