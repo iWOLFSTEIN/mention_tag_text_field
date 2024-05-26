@@ -78,7 +78,7 @@ class _MentionTagTextFieldExampleState
     return MentionTagTextField(
       controller: _controller,
       initialMentions: const [
-        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'))
+        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'), null)
       ],
       onMention: onMention,
       mentionTagDecoration: MentionTagDecoration(

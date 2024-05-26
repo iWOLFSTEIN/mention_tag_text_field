@@ -113,7 +113,7 @@ class MentionTagTextField extends TextField {
   ///
   /// Note: While setting initialMentions you must provide mention symbol associated with each mention. For example, ("@rowan", null) is a valid tuple and ("rowan", null) will be ignored.
   /// You don't need to add mention symbol later when setting mentions during editing using _controller.setMention, you can do _controller.setMention("rowan", null) and corresponding mention symbol will be added automatically.
-  final List<(String, Object?)> initialMentions;
+  final List<(String, Object?, Widget?)> initialMentions;
 
   static Widget _defaultContextMenuBuilder(
       BuildContext context, EditableTextState editableTextState) {
@@ -124,7 +124,7 @@ class MentionTagTextField extends TextField {
 
   void _setControllerProperties(
       MentionTagTextEditingController? mentionController,
-      List<(String, Object?)> initialMentions) {
+      List<(String, Object?, Widget?)> initialMentions) {
     if (mentionController == null) return;
     mentionController.mentionTagDecoration = mentionTagDecoration;
     mentionController.onMention = onMention;
@@ -243,7 +243,7 @@ class MentionTagTextFormField extends TextFormField {
   ///
   /// Note: While setting initialMentions you must provide mention symbol associated with each mention. For example, ("@rowan", null) is a valid tuple and ("rowan", null) will be ignored.
   /// You don't need to add mention symbol later when setting mentions during editing using _controller.setMention, you can do _controller.setMention("rowan", null) and corresponding mention symbol will be added automatically.
-  final List<(String, Object?)> initialMentions;
+  final List<(String, Object?, Widget?)> initialMentions;
 
   static Widget _defaultContextMenuBuilder(
       BuildContext context, EditableTextState editableTextState) {
@@ -254,7 +254,7 @@ class MentionTagTextFormField extends TextFormField {
 
   void _setControllerProperties(
       MentionTagTextEditingController? mentionController,
-      List<(String, Object?)> initialMentions) {
+      List<(String, Object?, Widget?)> initialMentions) {
     if (mentionController == null) return;
     mentionController.mentionTagDecoration = mentionTagDecoration;
     mentionController.onMention = onMention;

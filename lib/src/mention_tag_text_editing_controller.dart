@@ -40,7 +40,7 @@ class MentionTagTextEditingController extends TextEditingController {
   late MentionTagDecoration mentionTagDecoration;
   void Function(String?)? onMention;
 
-  set initialMentions(List<(String, Object?)> value) {
+  set initialMentions(List<(String, Object?, Widget?)> value) {
     for (final mentionTuple in value) {
       if (!super.text.contains(mentionTuple.$1)) return;
       super.text =
@@ -59,7 +59,8 @@ class MentionTagTextEditingController extends TextEditingController {
       _mentions.add(MentionTagElement(
           mentionSymbol: mentionSymbol,
           mention: mention,
-          data: mentionTuple.$2));
+          data: mentionTuple.$2,
+          stylingWidget: mentionTuple.$3));
     }
   }
 
