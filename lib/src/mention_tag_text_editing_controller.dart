@@ -14,26 +14,58 @@ class MentionTagTextEditingController extends TextEditingController {
   @override
   String get text {
     final List<MentionTagElement> tempList = List.from(_mentions);
-    return super.text.replaceAllMapped(
-        Constants.mentionEscape, (match) => tempList.removeAt(0).mention);
+    return super.text.replaceAllMapped(Constants.mentionEscape, (match) {
+      final MentionTagElement removedMention = tempList.removeAt(0);
+      final String mention = mentionTagDecoration.showMentionStartSymbol
+          ? removedMention.mention
+          : "${removedMention.mentionSymbol}${removedMention.mention}";
+      return mention;
+    });
+  }
+
+  /// The mentions or tags will be removed automatically using backspaces in TextField.
+  /// If you encounter a scenario where you need to remove a custom tag or mention on some action, you need to call remove and give it index of the mention or tag in _controller.mentions.
+  ///
+  /// Note: _controller.mentions is a custom getter, mentions removed from it won't be removed from TextField so you must call _controller.remove to remove mention or tag from both _controller and TextField.
+  void remove({required int index}) {
+    try {
+      _mentions.removeAt(index);
+      super.text =
+          super.text.removeCharacterAtCount(Constants.mentionEscape, index + 1);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   late MentionTagDecoration mentionTagDecoration;
   void Function(String?)? onMention;
 
-  set initialMentions(List<(String, Object?)> value) {
+  set initialMentions(List<(String, Object?, Widget?)> value) {
     for (final mentionTuple in value) {
       if (!super.text.contains(mentionTuple.$1)) return;
       super.text =
           super.text.replaceFirst(mentionTuple.$1, Constants.mentionEscape);
       _temp = super.text;
-      _mentions.add(
-          MentionTagElement(mention: mentionTuple.$1, data: mentionTuple.$2));
+
+      final mentionSymbol =
+          mentionTuple.$1.checkMentionSymbol(mentionTagDecoration.mentionStart);
+      if (mentionSymbol.isEmpty) throw 'No mention symbol with initialMention';
+
+      final mention = mentionTagDecoration.showMentionStartSymbol
+          ? mentionTuple.$1
+          : mentionTuple.$1
+              .removeMentionStart(mentionTagDecoration.mentionStart);
+
+      _mentions.add(MentionTagElement(
+          mentionSymbol: mentionSymbol,
+          mention: mention,
+          data: mentionTuple.$2,
+          stylingWidget: mentionTuple.$3));
     }
   }
 
   String _temp = '';
-  String? mentionInput;
+  String? _mentionInput;
 
   /// Mention or Tag label, this label will be visible in the Text Field.
   ///
@@ -43,18 +75,25 @@ class MentionTagTextEditingController extends TextEditingController {
   void addMention({
     required String label,
     Object? data,
+    Widget? stylingWidget,
   }) {
     final indexCursor = selection.base.offset;
-    final mentionSymbol = mentionInput!.first;
+    final mentionSymbol = _mentionInput!.first;
 
-    final MentionTagElement mentionTagElement =
-        MentionTagElement(mention: "$mentionSymbol$label", data: data);
+    final mention = mentionTagDecoration.showMentionStartSymbol
+        ? "$mentionSymbol$label"
+        : label;
+    final MentionTagElement mentionTagElement = MentionTagElement(
+        mentionSymbol: mentionSymbol,
+        mention: mention,
+        data: data,
+        stylingWidget: stylingWidget);
 
     final textPart = super.text.substring(0, indexCursor);
     final indexPosition = textPart.countChar(Constants.mentionEscape);
     _mentions.insert(indexPosition, mentionTagElement);
 
-    _replaceLastSubstringWithEscaping(indexCursor, mentionInput!);
+    _replaceLastSubstringWithEscaping(indexCursor, _mentionInput!);
   }
 
   void _replaceLastSubstringWithEscaping(int indexCursor, String replacement) {
@@ -141,7 +180,7 @@ class MentionTagTextEditingController extends TextEditingController {
 
   void _updateOnMention(String? mention) {
     onMention!(mention);
-    mentionInput = mention;
+    _mentionInput = mention;
   }
 
   void onChanged(String value) async {
@@ -162,7 +201,7 @@ class MentionTagTextEditingController extends TextEditingController {
     int indexCursor,
   ) {
     if (_temp.length - value.length != 1) return;
-    if (!mentionTagDecoration.allowDecrement) return;
+    // if (!mentionTagDecoration.allowDecrement) return;
     if (mentionsCountTillCursor < 1) return;
 
     var indexMentionEscape = value
@@ -174,7 +213,10 @@ class MentionTagTextEditingController extends TextEditingController {
     if (isCursorAtMention) {
       final MentionTagElement cursorMention =
           _mentions[mentionsCountTillCursor - 1];
-      _updateOnMention(cursorMention.mention);
+      final mentionText = mentionTagDecoration.showMentionStartSymbol
+          ? cursorMention.mention
+          : "${cursorMention.mentionSymbol}${cursorMention.mention}";
+      _updateOnMention(mentionText);
     }
   }
 
@@ -195,12 +237,20 @@ class MentionTagTextEditingController extends TextEditingController {
 
       if (mentionTagDecoration.allowDecrement &&
           _temp.length - value.length == 1) {
-        final replacementText = removedMention.mention
+        String replacementText = removedMention.mention
             .substring(0, removedMention.mention.length - 1);
+
+        replacementText = mentionTagDecoration.showMentionStartSymbol
+            ? replacementText
+            : "${removedMention.mentionSymbol}$replacementText";
+
         super.text =
             super.text.replaceRange(indexCursor, indexCursor, replacementText);
-        selection = TextSelection.collapsed(
-            offset: indexCursor + removedMention.mention.length - 1);
+
+        final offset = mentionTagDecoration.showMentionStartSymbol
+            ? indexCursor + removedMention.mention.length - 1
+            : indexCursor + removedMention.mention.length;
+        selection = TextSelection.collapsed(offset: offset);
         _updateOnMention(replacementText);
       }
     } catch (e) {
@@ -225,13 +275,16 @@ class MentionTagTextEditingController extends TextEditingController {
           final mention = tempList.removeAt(0);
 
           return WidgetSpan(
-            child: Text(
-              mentionTagDecoration.showMentionStartSymbol
-                  ? mention.mention
-                  : (mention.mention as String)
-                      .removeMentionStart(mentionTagDecoration.mentionStart),
-              style: mentionTagDecoration.mentionTextStyle,
-            ),
+            alignment: PlaceholderAlignment.middle,
+            child: mention.stylingWidget ??
+                Text(
+                  // mentionTagDecoration.showMentionStartSymbol
+                  //     ?
+                  mention.mention,
+                  // : (mention.mention as String)
+                  //     .removeMentionStart(mentionTagDecoration.mentionStart),
+                  style: mentionTagDecoration.mentionTextStyle,
+                ),
           );
         }
         return TextSpan(text: e, style: style);

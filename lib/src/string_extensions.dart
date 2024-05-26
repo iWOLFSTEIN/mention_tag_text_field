@@ -49,4 +49,41 @@ extension StringExtensions on String {
     }
     return -1;
   }
+
+  /// Checks if string has mention symbol at start
+  String checkMentionSymbol(List<String> symbols) {
+    if (isEmpty) {
+      return '';
+    }
+
+    String firstChar = this[0];
+    for (String symbol in symbols) {
+      if (firstChar == symbol) {
+        return symbol;
+      }
+    }
+
+    return '';
+  }
+
+  String removeCharacterAtCount(String character, int count) {
+    int occurrence = 0;
+    int indexToRemove = -1;
+
+    for (int i = 0; i < length; i++) {
+      if (this[i] == character) {
+        occurrence++;
+        if (occurrence == count) {
+          indexToRemove = i;
+          break;
+        }
+      }
+    }
+
+    if (indexToRemove != -1) {
+      return substring(0, indexToRemove) + substring(indexToRemove + 1);
+    }
+
+    return this;
+  }
 }

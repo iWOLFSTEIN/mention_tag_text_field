@@ -3,7 +3,6 @@ This package extends the capabilties of a normal TextField or TextFormField to e
   <img src="https://s10.gifyu.com/images/SfUtS.gif" alt="Demo GIF" />
 </p>
 
-
 ## Getting started
 
 In your pubspec.yaml
@@ -25,7 +24,7 @@ final MentionTagTextEditingController _controller =
       MentionTagTextEditingController();
 ```
 
-You can use MentionTagTextField just like you normal TextField. If you are using Form widget you can use MentionTagTextFormField.
+You can use MentionTagTextField just like your normal TextField. If you are using Form widget you can use MentionTagTextFormField.
 ```dart
  @override
   Widget build(BuildContext context) {
@@ -99,6 +98,7 @@ You can use MentionTagTextField just like you normal TextField. If you are using
   }
 ```
 
+**Initial Mentions**
 You can also set the initial mentions if your initial text has mentions in it. First set the initial text,
 ```dart
 @override
@@ -108,22 +108,47 @@ You can also set the initial mentions if your initial text has mentions in it. F
   }
 ```
 
-Now set the intial mentions using initialMentions property. You must pass a list of tuples containing mention label and data associated with it. The mention label must have a mandatory mention start symbol for intial mentions.
+Now set the intial mentions using initialMentions property. You must pass a list of tuples containing mention label and data associated with it. The mention label must have a mandatory mention start symbol for intial mentions. 
+
+You can also give a specific styling widget or pass null to use default mention styling which you set in mentionTagDecoration.
 ```dart
 MentionTagTextField(
       controller: _controller,
       initialMentions: const [
-        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'))
+        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'), null)
       ],
       ...
 )
 ``` 
 
+**Adding Mentions**
 You can set the mentions using _controller.addMention which takes a mention label and optional data associated with it.
 ```dart
  _controller.addMention(label: 'Emily Johnson', data: User(id: 0, name: 'Emily Johnson'));
 ```
 
+To give a mention or tag a specific styling, you can pass your own custom widget in stylingWidget parameter of _controller.addMention. This enables you to create a variaty of styles for your mentions or tags.
+```dart
+_controller.addMention(label: 'Emma Miller', data: User(id: 1, name: 'Emma Miller'), stylingWidget: MyCustomTag(
+   ... 
+   ));
+```
+<p align="center">
+  <img src="https://s12.gifyu.com/images/SfZBv.png" alt="Demo Image" />
+</p>
+
+**Removing Mentions Manually**
+By default, mentions or tags are automatically removed on backspaces. 
+
+If you want to remove a mention or tag on some action like button inside a custom tag or an external remove button, you need to call _controller.remove and give it the index of mention or tag which it has in _controller.mentions.
+```dart
+ _controller.remove(index: 1);
+```
+This will remove the mention or tag from both _controller and TextField.
+
+Note: _controller.mentions is a setter removing mentions from it won't remove mentions from TextField, so you must have to call _controller.remove
+
+**Getting All Mentions**
 Finally, you can get all the mentions data using _controller.mentions which returns the list of data passed to each mention. If no data was passed, list of mention labels will be returned.
 ```dart
 final List mentions = _controller.mentions;

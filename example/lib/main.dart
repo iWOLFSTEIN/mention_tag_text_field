@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mention_tag_text_field/mention_tag_text_field.dart';
 import 'package:http/http.dart' as http;
 
@@ -77,13 +78,13 @@ class _MentionTagTextFieldExampleState
     return MentionTagTextField(
       controller: _controller,
       initialMentions: const [
-        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'))
+        ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'), null)
       ],
       onMention: onMention,
       mentionTagDecoration: MentionTagDecoration(
           mentionStart: ['@', '#'],
           mentionBreak: ' ',
-          allowDecrement: true,
+          allowDecrement: false,
           allowEmbedding: false,
           showMentionStartSymbol: false,
           maxWords: null,
@@ -123,7 +124,13 @@ class _MentionTagTextFieldExampleState
                       data: User(
                           id: searchResults[index]['id'],
                           name:
-                              "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}"));
+                              "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}"),
+                      stylingWidget: _controller.mentions.length == 1
+                          ? MyCustomTag(
+                              controller: _controller,
+                              text:
+                                  "${searchResults[index]['firstName']} ${searchResults[index]['lastName']}")
+                          : null);
                   mentionValue = null;
                   setState(() {});
                 },
@@ -162,6 +169,50 @@ class _MentionTagTextFieldExampleState
       debugPrint(e.toString());
     }
     return null;
+  }
+}
+
+class MyCustomTag extends StatelessWidget {
+  const MyCustomTag({
+    super.key,
+    required this.controller,
+    required this.text,
+  });
+
+  final MentionTagTextEditingController controller;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      decoration: BoxDecoration(
+          color: Colors.yellow.shade50,
+          borderRadius: const BorderRadius.all(Radius.circular(50))),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(text,
+              style: TextStyle(
+                color: Colors.yellow.shade700,
+              )),
+          const SizedBox(
+            width: 6.0,
+          ),
+          GestureDetector(
+            onTap: () {
+              controller.remove(index: 1);
+              print(controller.text);
+            },
+            child: Icon(
+              Icons.close,
+              size: 12,
+              color: Colors.yellow.shade700,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
 
