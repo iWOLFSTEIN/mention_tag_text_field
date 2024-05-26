@@ -123,6 +123,7 @@ MentionTagTextField(
 ``` 
 
 **Adding Mentions**
+
 You can set the mentions using _controller.addMention which takes a mention label and optional data associated with it.
 ```dart
  _controller.addMention(label: 'Emily Johnson', data: User(id: 0, name: 'Emily Johnson'));
@@ -139,6 +140,7 @@ _controller.addMention(label: 'Emma Miller', data: User(id: 1, name: 'Emma Mille
 </p>
 
 **Removing Mentions Manually**
+
 By default, mentions or tags are automatically removed on backspaces. 
 
 If you want to remove a mention or tag on some action like button inside a custom tag or an external remove button, you need to call _controller.remove and give it the index of mention or tag which it has in _controller.mentions.
@@ -147,9 +149,10 @@ If you want to remove a mention or tag on some action like button inside a custo
 ```
 This will remove the mention or tag from both _controller and TextField.
 
-Note: _controller.mentions is a setter removing mentions from it won't remove mentions from TextField, so you must have to call _controller.remove
+Note: _controller.mentions is a getter removing mentions from it won't remove mentions from TextField, so you must have to call _controller.remove
 
 **Getting All Mentions**
+
 Finally, you can get all the mentions data using _controller.mentions which returns the list of data passed to each mention. If no data was passed, list of mention labels will be returned.
 ```dart
 final List mentions = _controller.mentions;
