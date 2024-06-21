@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mention_tag_text_field/mention_tag_text_field.dart';
 import 'package:http/http.dart' as http;
 
