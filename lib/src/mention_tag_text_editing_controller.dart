@@ -6,16 +6,16 @@ import 'package:mention_tag_text_field/src/string_extensions.dart';
 
 class MentionTagTextEditingController extends TextEditingController {
   MentionTagTextEditingController() {
-    addListener(updateCursorPostion);
+    addListener(_updateCursorPostion);
   }
 
   @override
   void dispose() {
-    removeListener(updateCursorPostion);
+    removeListener(_updateCursorPostion);
     super.dispose();
   }
 
-  void updateCursorPostion() {
+  void _updateCursorPostion() {
     _cursorPosition = selection.base.offset;
     if (_indexMentionEnd == null) return;
     if (_cursorPosition - _indexMentionEnd! == 1) {
