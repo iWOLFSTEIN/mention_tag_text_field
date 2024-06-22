@@ -5,6 +5,29 @@ import 'package:mention_tag_text_field/src/mention_tag_decoration.dart';
 import 'package:mention_tag_text_field/src/string_extensions.dart';
 
 class MentionTagTextEditingController extends TextEditingController {
+  MentionTagTextEditingController() {
+    addListener(_updateCursorPostion);
+  }
+
+  @override
+  void dispose() {
+    removeListener(_updateCursorPostion);
+    super.dispose();
+  }
+
+  void _updateCursorPostion() {
+    _cursorPosition = selection.base.offset;
+    if (_indexMentionEnd == null) return;
+    if (_cursorPosition - _indexMentionEnd! == 1) {
+      onChanged(super.text);
+    } else if (_cursorPosition - _indexMentionEnd! != 1) {
+      _updateOnMention(null);
+    }
+  }
+
+  late int _cursorPosition;
+  int? _indexMentionEnd;
+
   final List<MentionTagElement> _mentions = [];
 
   /// Get the list of data associated with you mentions, if no data was given the mention labels will be returned.
@@ -163,9 +186,10 @@ class MentionTagTextEditingController extends TextEditingController {
     }
 
     if (indexMentionFromStart != -1) {
-      if (value.length == 1) return value.first;
-
       final indexMentionStart = indexCursor - indexMentionFromStart;
+      _indexMentionEnd = (indexMentionStart + indexMentionFromStart) - 1;
+
+      if (value.length == 1) return value.first;
 
       if (!_isMentionEmbeddedOrDistinct(value, indexMentionStart)) return null;
 
@@ -185,6 +209,7 @@ class MentionTagTextEditingController extends TextEditingController {
 
   void onChanged(String value) async {
     if (onMention == null) return;
+    _indexMentionEnd = null;
     String? mention = _getMention(value);
     _updateOnMention(mention);
 
@@ -201,7 +226,6 @@ class MentionTagTextEditingController extends TextEditingController {
     int indexCursor,
   ) {
     if (_temp.length - value.length != 1) return;
-    // if (!mentionTagDecoration.allowDecrement) return;
     if (mentionsCountTillCursor < 1) return;
 
     var indexMentionEscape = value

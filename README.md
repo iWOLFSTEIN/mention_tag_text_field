@@ -8,7 +8,7 @@ This package extends the capabilties of a normal TextField or TextFormField to e
 In your pubspec.yaml
 ```yaml
 dependencies:
-  mentionable_text_field: ^0.0.1
+  mentionable_text_field: ^0.0.4
 ```
 
 Import the package using
@@ -124,7 +124,7 @@ MentionTagTextField(
 
 **Adding Mentions**
 
-You can set the mentions using _controller.addMention which takes a mention label and optional data associated with it.
+You can add mentions using _controller.addMention which takes a mention label and optional data associated with it.
 ```dart
  _controller.addMention(label: 'Emily Johnson', data: User(id: 0, name: 'Emily Johnson'));
 ```

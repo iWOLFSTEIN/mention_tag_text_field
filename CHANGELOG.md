@@ -1,3 +1,8 @@
+## 0.0.4
+**Fixed**
+
+- Hiding suggestion on cursor movement
+
 ## 0.0.3
 **Added**
 
