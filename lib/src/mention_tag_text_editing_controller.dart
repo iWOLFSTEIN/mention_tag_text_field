@@ -123,8 +123,11 @@ class MentionTagTextEditingController extends TextEditingController {
     try {
       _replaceLastSubstring(indexCursor, Constants.mentionEscape,
           allowDecrement: false);
-      selection =
-          TextSelection.collapsed(offset: indexCursor - replacement.length + 2);
+
+      selection = TextSelection.collapsed(
+          offset: indexCursor -
+              replacement.length +
+              (1 + mentionTagDecoration.mentionBreak.length));
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -147,6 +150,7 @@ class MentionTagTextEditingController extends TextEditingController {
         !allowDecrement ? indexMentionStart - 1 : indexMentionStart,
         indexCursor,
         "$replacement${mentionTagDecoration.mentionBreak}");
+
     _temp = super.text;
   }
 
