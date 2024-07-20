@@ -34,8 +34,13 @@ class MentionTagTextEditingController extends TextEditingController {
   List get mentions =>
       List.from(_mentions.map((mention) => mention.data ?? mention.mention));
 
-  @override
-  String get text {
+  /// Used to set initial text with mentions in it
+  set setText(String newText) {
+    text = newText;
+  }
+
+  /// Returns text with mentions in it
+  String get getText {
     final List<MentionTagElement> tempList = List.from(_mentions);
     return super.text.replaceAllMapped(Constants.mentionEscape, (match) {
       final MentionTagElement removedMention = tempList.removeAt(0);

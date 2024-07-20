@@ -41,7 +41,7 @@ class _MentionTagTextFieldExampleState
   @override
   void initState() {
     super.initState();
-    _controller.text = "Hello @Emily Johnson ";
+    _controller.setText = "Hello @Emily Johnson ";
   }
 
   String? mentionValue;

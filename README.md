@@ -8,7 +8,7 @@ This package extends the capabilties of a normal TextField or TextFormField to e
 In your pubspec.yaml
 ```yaml
 dependencies:
-  mentionable_text_field: ^0.0.4
+  mentionable_text_field: ^latest
 ```
 
 Import the package using
@@ -105,7 +105,7 @@ You can also set the initial mentions if your initial text has mentions in it. F
 @override
   void initState() {
     super.initState();
-    _controller.text = "Hello @Emily Johnson ";
+    _controller.setText = "Hello @Emily Johnson ";
   }
 ```
 
@@ -156,6 +156,11 @@ Note: _controller.mentions is a getter removing mentions from it won't remove me
 Finally, you can get all the mentions data using _controller.mentions which returns the list of data passed to each mention. If no data was passed, list of mention labels will be returned.
 ```dart
 final List mentions = _controller.mentions;
+```
+
+To get the text with mention labels in it, use
+```dart
+final String textWithMentions = _controller.getText;
 ```
 
 ## Additional information

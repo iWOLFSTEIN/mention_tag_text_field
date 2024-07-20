@@ -1,3 +1,7 @@
+## 0.0.6
+**Fixed**
+- Issue where cursor moved to end of the text on editing in MentionTagTextFormField.
+
 ## 0.0.5
 **Added**
 - Environment variables example like in Postman.
