@@ -8,7 +8,7 @@ This package extends the capabilties of a normal TextField or TextFormField to e
 In your pubspec.yaml
 ```yaml
 dependencies:
-  mentionable_text_field: ^latest
+    mention_tag_text_field: ^latest
 ```
 
 Import the package using
