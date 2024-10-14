@@ -75,6 +75,9 @@ class _MentionTagTextFieldExampleState
     final border = OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none);
     return MentionTagTextField(
+      keyboardType: TextInputType.multiline,
+      minLines: 1,
+      maxLines: 5,
       controller: _controller,
       initialMentions: const [
         ('@Emily Johnson', User(id: 1, name: 'Emily Johnson'), null)

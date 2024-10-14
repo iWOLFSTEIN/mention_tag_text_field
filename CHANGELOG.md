@@ -1,3 +1,8 @@
+## 0.0.7
+**Fixed**
+- Mention not triggering on line breaks.
+- Inconsistencies in the docs
+
 ## 0.0.6
 **Fixed**
 - Issue where cursor moved to end of the text on editing in MentionTagTextFormField.
