@@ -171,6 +171,7 @@ class MentionTagTextEditingController extends TextEditingController {
     final indexMentionStartSymbol = indexMentionStart - 1;
     if (indexMentionStartSymbol == 0) return true;
     if (mentionTagDecoration.allowEmbedding) return true;
+    if (value[indexMentionStartSymbol - 1] == '\n') return true;
     if (value[indexMentionStartSymbol - 1] == Constants.mentionEscape) {
       return true;
     }
